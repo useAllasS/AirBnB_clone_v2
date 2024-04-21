@@ -2,8 +2,6 @@
 """ holds class Place"""
 import models
 from models.base_model import BaseModel, Base
-from os import getenv
-import sqlalchemy
 from sqlalchemy import Column, String, Integer, Float, ForeignKey, Table
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.mysql import VARCHAR
@@ -24,7 +22,7 @@ class Place(BaseModel, Base):
     """Representation of Place """
     if models.storage_t == 'db':
         __tablename__ = 'places'
-        city_id = Column(VARCHAR(60), ForeignKey('cities.id'), nullable=False)
+        city_id = Column(VARCHAR(60, collation='latin1_swedish_ci'), ForeignKey('cities.id', onupdate='CASCADE', ondelete='CASCADE'), nullable=False)
         user_id = Column(String(60), ForeignKey('users.id'), nullable=False)
         name = Column(String(128), nullable=False)
         description = Column(String(1024), nullable=True)
@@ -35,9 +33,7 @@ class Place(BaseModel, Base):
         latitude = Column(Float, nullable=True)
         longitude = Column(Float, nullable=True)
         reviews = relationship("Review", backref="place")
-        amenities = relationship("Amenity", secondary="place_amenity",
-                                 backref="place_amenities",
-                                 viewonly=False)
+        amenities = relationship("Amenity", secondary="place_amenity", backref="place_amenities", viewonly=False)
     else:
         city_id = ""
         user_id = ""
@@ -77,3 +73,4 @@ class Place(BaseModel, Base):
                 if amenity.place_id == self.id:
                     amenityList.append(amenity)
             return amenityList
+
